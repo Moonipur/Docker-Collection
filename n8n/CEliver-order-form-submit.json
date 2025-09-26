@@ -1,0 +1,681 @@
+{
+  "name": "CEliver-order-form-submit",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "xlsx",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        992,
+        64
+      ],
+      "id": "2fe8c7d3-2f4e-42c4-897f-3ccd8c1c2bfd",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.File }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        768,
+        64
+      ],
+      "id": "96b07cf6-fb57-4ec7-8315-90206136c57d",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "nraZU2h0v4S4WIIb",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "songphonsuttittha@gmail.com",
+        "subject": "=White Alert — New order — {{ $json.orderDate }}",
+        "emailType": "text",
+        "message": "=Hi CEliver Team,\n\nA new order has been received in the system. Here are the details:\n\nDate: {{ $json.orderDate }}\nSource: {{ $json.source }}\nBy: {{ $json.by }}\n\nOrders: \n• {{ $json.ids }}\n\nThis is a low-severity alert to keep everyone informed. The order has been successfully recorded in the system.\n\nTeam: CElama is monitoring the process and will escalate if any issue occurs.\n\nNext update: As needed or if there’s an issue with order processing.\n\nThanks,\nCElama",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "CElama"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1440,
+        -128
+      ],
+      "id": "92664535-a9d7-43d3-90f5-c2bde10ebbda",
+      "name": "Send a message",
+      "webhookId": "bcb98483-6848-4caf-a942-d05b42fbfa41",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "q4sEBZRGLBLz4Wh4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $json.id }}",
+        "labelIds": [
+          "Label_8312218597692381680"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1664,
+        -128
+      ],
+      "id": "1f46b747-fbc8-4a38-a80a-ab00c11c3bee",
+      "name": "Add label to message",
+      "webhookId": "4193d8b1-300a-4cc0-b0ef-73d57b72c886",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "q4sEBZRGLBLz4Wh4",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "e54ba092-610f-4e92-9306-3d08a242add8",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        64
+      ],
+      "id": "dc2578c4-1737-4721-995a-ea4292bc8116",
+      "name": "Webhook",
+      "webhookId": "e54ba092-610f-4e92-9306-3d08a242add8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f4ab8464-215f-4b17-a817-d8c426e4486b",
+              "name": "Hospital",
+              "value": "={{ $json.body[\"โรงพยาบาล\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "438178d4-2a35-4577-84c8-df8602c8935b",
+              "name": "Sender",
+              "value": "={{ $json.body[\"ชื่อ-สกุล ผู้รับผิดชอบ\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "2255ba5c-3843-4efd-99bf-942742821bef",
+              "name": "File",
+              "value": "={{ $json.body[\"ไฟล์เอกสารข้อมูลผู้ป่วย\"][0] }}",
+              "type": "string"
+            },
+            {
+              "id": "c3331b2c-3274-419e-852d-62de2dc05726",
+              "name": "TimeStamp",
+              "value": "={{ new Date().toLocaleString(\"en-GB\", { timeZone: \"Asia/Bangkok\", hour12: false }).replace(',', '') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        544,
+        64
+      ],
+      "id": "f060560b-4d18-4425-8c24-ff8c2cd6ab56",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "-4947567026",
+        "text": "=📩 **New orders!**\nDate: {{$json[\"orderDate\"]}}\nSource: {{$json[\"source\"]}}\nBy: {{$json[\"by\"]}}\n\n🆔 Orders:\n{{\"• \" + $json[\"ids\"]}}\n",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1440,
+        64
+      ],
+      "id": "67eff533-8dad-4033-875f-bf2f6a06d40b",
+      "name": "Send a text message",
+      "webhookId": "3fba1f8f-7622-45b6-ac06-2e93f1c04264",
+      "credentials": {
+        "telegramApi": {
+          "id": "qNy5e9uEKDevr9fJ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\nlet ids = [];\n\nfor (const item of items) {\n    const id = item.json.ID;\n    const visit = item.json.Visit;\n    ids.push(`${id}_V${visit}`);\n}\n\n// Return as a single string (comma-separated)\nreturn [{orderDate: $('Download file').first().json.TimeStamp ,\n         source: $('Download file').first().json.Hospital,\n         by: $('Download file').first().json.Sender,\n         ids: ids.join(\"\\n• \") }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -128
+      ],
+      "id": "f84e9d4c-c6f3-471f-bb36-0098f0a40bcc",
+      "name": "Edit for Email"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all incoming items\nconst items = $input.all();\n\nlet ids = [];\n\nfor (const item of items) {\n    const id = item.json.ID;\n    const visit = item.json.Visit;\n    ids.push(`${id}\\\\_V${visit}`);\n}\n\n// Return as a single string (comma-separated)\nreturn [{orderDate: $('Download file').first().json.TimeStamp ,\n         source: $('Download file').first().json.Hospital,\n         by: $('Download file').first().json.Sender,\n         ids: ids.join(\"\\n• \") }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        64
+      ],
+      "id": "30a43b01-2f3e-4c36-898a-cd34b079a2f8",
+      "name": "Edit for Telegram"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "18OmRaATTlZIJ8TVtBjqRH49Jvn7bOEhz_Bt15bhCmWc",
+          "mode": "list",
+          "cachedResultName": "Order_record_form_submit",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18OmRaATTlZIJ8TVtBjqRH49Jvn7bOEhz_Bt15bhCmWc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/18OmRaATTlZIJ8TVtBjqRH49Jvn7bOEhz_Bt15bhCmWc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Case_ID": "={{ $json.ID }}",
+            "Visit": "={{ $json.Visit }}",
+            "Age": "={{ $json.Age }}",
+            "Sex": "={{ $json.Sex }}",
+            "UnderlineDisease": "={{ $json.Diagnosis }}",
+            "TumorNumber": "={{ $json.Nodules }}",
+            "TumorSize": "={{ $json['Nodule Size'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Case_ID",
+              "displayName": "Case_ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Visit",
+              "displayName": "Visit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Age",
+              "displayName": "Age",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Sex",
+              "displayName": "Sex",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "UnderlineDisease",
+              "displayName": "UnderlineDisease",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TumorNumber",
+              "displayName": "TumorNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TumorSize",
+              "displayName": "TumorSize",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        256
+      ],
+      "id": "bed9cb78-9abc-4c21-8cd2-2c893ae7d9e4",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "JFfkpxmeQ6sqHFqx",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {
+          "download": true
+        }
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        320,
+        672
+      ],
+      "id": "23130e8d-d2db-426e-8c93-b5eaad4bbf2b",
+      "name": "Telegram Trigger",
+      "webhookId": "14d2dd9e-dcb6-473c-b8b2-b521c3a4e59e",
+      "credentials": {
+        "telegramApi": {
+          "id": "qNy5e9uEKDevr9fJ",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.qrserver.com/v1/read-qr-code/",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            },
+            {
+              "name": "Content-Type",
+              "value": "={{ $binary.data.mimeType }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        768,
+        576
+      ],
+      "id": "ec7a0ee7-b5a4-4ddb-a767-e87277e74db1",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "33dad250-9e46-4e36-8f68-343d07a67fdd",
+              "leftValue": "={{ $json.symbol[0].data }}",
+              "rightValue": "=",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        992,
+        576
+      ],
+      "id": "f0eb5e52-295a-46ff-b1fa-7619a3ecd3c7",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5d27aea2-b90e-4087-9480-4823558ba938",
+              "leftValue": "={{ $json.message.caption }}",
+              "rightValue": "qr",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        544,
+        672
+      ],
+      "id": "48c27632-7211-4a60-8f39-d9e55fdd136c",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        768,
+        768
+      ],
+      "id": "bad090a4-2f1a-4725-abb8-317f8b4640de",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        672
+      ],
+      "id": "5bbc6cde-bce2-45ab-ab5c-6ae70cf59272",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.symbol[0].data }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1216,
+        480
+      ],
+      "id": "9f40297c-8dc1-4057-b07f-215e901aa86f",
+      "name": "Send a text message1",
+      "webhookId": "d6d3e9ab-af1b-41a9-b13b-f73c8a1f5d7c",
+      "credentials": {
+        "telegramApi": {
+          "id": "qNy5e9uEKDevr9fJ",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "truman-unexercisable-brielle.ngrok-free.dev",
+            "user-agent": "Mozilla/5.0 (compatible; Google-Apps-Script; beanserver; +https://script.google.com; id: UAEmdDd8-KK2wAmcIgG8SwqxQ8vZLEt3v6Q)",
+            "content-length": "272",
+            "accept-encoding": "gzip, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "107.178.192.104",
+            "x-forwarded-host": "truman-unexercisable-brielle.ngrok-free.dev",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "โรงพยาบาล": "มหาราชนครเชียงใหม่",
+            "ชื่อ-สกุล ผู้รับผิดชอบ": "Lo Ksw",
+            "ไฟล์เอกสารข้อมูลผู้ป่วย": [
+              "1j4KIXRhXtdEzmKQ2_JCXTJ7lUXLtNZGb"
+            ]
+          },
+          "webhookUrl": "https://truman-unexercisable-brielle.ngrok-free.dev/webhook-test/e54ba092-610f-4e92-9306-3d08a242add8",
+          "executionMode": "test"
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "Hospital": "มหาราชนครเชียงใหม่",
+          "Sender": "Lo Ksw",
+          "File": "1j4KIXRhXtdEzmKQ2_JCXTJ7lUXLtNZGb",
+          "TimeStamp": "25/09/2025 20:40:38"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Edit for Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Edit for Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Add label to message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit for Email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit for Telegram": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6b38cde7-40dc-401d-babe-51dc1d6398e7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "35e81b510d7c162ca71d7597d326a4f1f1107b8af92fa4023c7eba218ad71c88"
+  },
+  "id": "yC6avBOcS8vmoriJ",
+  "tags": []
+}

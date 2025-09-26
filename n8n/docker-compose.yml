@@ -15,7 +15,7 @@ services:
       - n8n_network
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n:latest
+    image: n8nio/n8n:latest
     container_name: n8n
     restart: always
     ports:
@@ -36,6 +36,7 @@ services:
       N8N_SECURE_COOKIE: "false"
       N8N_EDITOR_BASE_URL: "https://truman-unexercisable-brielle.ngrok-free.dev"
       WEBHOOK_URL: "https://truman-unexercisable-brielle.ngrok-free.dev"
+      NODE_FUNCTION_ALLOW_EXTERNAL: ""
     depends_on:
       - postgres
     volumes:
@@ -44,7 +45,7 @@ services:
       - n8n_network
 
   ngrok:
-    image: ngrok/ngrok
+    image: ngrok/ngrok:latest
     container_name: ngrok
     restart: always
     command: http n8n:5678 --url "truman-unexercisable-brielle.ngrok-free.dev"
@@ -56,17 +57,22 @@ services:
       - n8n_network
 
   ollma:
-    image: ollama/ollama
+    image: ollama/ollama:latest
     container_name: ollama
     restart: always
     ports:
       - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - ./ollama-entrypoint.sh:/entrypoint.sh
+    entrypoint: ["/entrypoint.sh"]
     networks:
       - n8n_network
 
 volumes:
   postgres_data:
   n8n_data:
+  ollama_data:
 
 networks:
   n8n_network:
