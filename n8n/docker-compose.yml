@@ -56,23 +56,38 @@ services:
     networks:
       - n8n_network
 
-  ollma:
-    image: ollama/ollama:latest
-    container_name: ollama
+  # ollma:
+  #   image: ollama/ollama:latest
+  #   container_name: ollama
+  #   restart: always
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_data:/root/.ollama
+  #     - ./ollama-entrypoint.sh:/entrypoint.sh
+  #   entrypoint: ["/entrypoint.sh"]
+  #   networks:
+  #     - n8n_network
+
+  barcode-api:
+    build:
+      context: ./barcode-api
+      dockerfile: Dockerfile
+    container_name: barcodeapi
     restart: always
     ports:
-      - "11434:11434"
+      - "4000:4000"
     volumes:
-      - ollama_data:/root/.ollama
-      - ./ollama-entrypoint.sh:/entrypoint.sh
-    entrypoint: ["/entrypoint.sh"]
+      - ./barcode-api/src:/usr/src/app/src
+      - barcode-node-modules:/usr/src/app/node_modules
     networks:
       - n8n_network
 
 volumes:
   postgres_data:
   n8n_data:
-  ollama_data:
+  # ollama_data:
+  barcode-node-modules:
 
 networks:
   n8n_network:

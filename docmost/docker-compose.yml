@@ -1,11 +1,12 @@
 services:
   docmost:
     image: docmost/docmost:latest
+    container_name: docmost
     depends_on:
       - db
       - redis
     environment:
-      APP_URL: 'http://localhost:3000'
+      APP_URL: 'http://localhost:8000'
       APP_SECRET: 'AYFAN6I/5AV79UZW4J0HrgDCLkhipsO4r+0RFYRNjr/Sf66qIQ77uBnBqxR5GBAo'
       DATABASE_URL: 'postgresql://docmost:postgres@db:5432/docmost?schema=public'
       REDIS_URL: 'redis://redis:6379'
@@ -17,7 +18,9 @@ services:
 
   db:
     image: postgres:16-alpine
+    container_name: postgres
     environment:
+      POSTGRES_POER: 5434
       POSTGRES_DB: docmost
       POSTGRES_USER: docmost
       POSTGRES_PASSWORD: postgres
@@ -27,6 +30,7 @@ services:
 
   redis:
     image: redis:7.2.0-alpine
+    container_name: redis
     restart: unless-stopped
     volumes:
       - redis_data:/data
